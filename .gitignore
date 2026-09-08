@@ -1,0 +1,13 @@
+venv/
+.venv/
+__pycache__/
+*.pyc
+.env
+.env.*
+*.log
+.DS_Store
+uploads/
+temp/
+tmp/
+artifacts/
+resume_screening_artifacts.zip

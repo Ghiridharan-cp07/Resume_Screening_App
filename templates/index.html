@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resume Screening - Intelligent Candidate Matching</title>
+    <meta name="description" content="AI-powered Resume Screening and Candidate Matching Tool">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <header class="app-header">
+        <div class="header-container">
+            <h1>Resume Screening</h1>
+            <p>Intelligent Candidate Matching</p>
+        </div>
+    </header>
+
+    <main class="app-main">
+        <section class="upload-section glass-panel">
+            <form id="screening-form" enctype="multipart/form-data">
+                
+                <div class="form-group">
+                    <label for="jd_file">Job Description</label>
+                    <div class="file-upload-wrapper" id="jd-upload-wrapper">
+                        <div class="upload-icon">📄</div>
+                        <span class="upload-text">Upload Job Description (PDF, DOCX, TXT)</span>
+                        <input type="file" id="jd_file" name="jd_file" accept=".pdf,.docx,.txt" required>
+                    </div>
+                    <div id="jd-file-name" class="file-name-display"></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="resume_files">Candidate Resumes</label>
+                    <div class="file-upload-wrapper" id="resume-upload-wrapper">
+                        <div class="upload-icon">📂</div>
+                        <span class="upload-text">Upload Multiple Resumes (PDF, DOCX, TXT)</span>
+                        <input type="file" id="resume_files" name="resume_files" accept=".pdf,.docx,.txt" multiple required>
+                    </div>
+                    <div id="resume-files-list" class="file-name-display"></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="shortlist_size">Shortlist Size</label>
+                    <select id="shortlist_size" name="shortlist_size" class="custom-select">
+                        <option value="5">5 Candidates</option>
+                        <option value="10" selected>10 Candidates</option>
+                        <option value="15">15 Candidates</option>
+                        <option value="20">20 Candidates</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="btn-primary" id="submit-btn">Screen Resumes</button>
+            </form>
+        </section>
+
+        <!-- Processing State -->
+        <section id="processing-state" class="processing-state hidden">
+            <div class="spinner"></div>
+            <h3>Processing...</h3>
+            <ul class="processing-steps">
+                <li class="active">Extracting documents</li>
+                <li>Understanding job requirements</li>
+                <li>Comparing candidate profiles</li>
+                <li>Ranking candidates</li>
+            </ul>
+        </section>
+
+        <!-- Results Section -->
+        <section id="results-section" class="results-section hidden">
+            <div class="results-header">
+                <h2>Screening Summary</h2>
+                <p id="summary-stats"><span id="total-analyzed">0</span> resumes analyzed • <span id="total-shortlisted">0</span> candidates shortlisted</p>
+            </div>
+            
+            <div id="candidate-cards" class="candidate-cards">
+                <!-- Candidate Cards injected via JS -->
+            </div>
+        </section>
+    </main>
+
+    <!-- Candidate Detail Modal -->
+    <div id="candidate-modal" class="modal hidden">
+        <div class="modal-content glass-panel">
+            <button class="close-modal">&times;</button>
+            <div class="modal-header">
+                <div class="modal-header-top">
+                    <div class="modal-rank-badge" id="modal-rank">#1</div>
+                    <h2 id="modal-name">Candidate Name</h2>
+                </div>
+                <div class="modal-score-container">
+                    <p class="modal-score">Relative Fit Score: <span id="modal-fit-score">0</span> <span class="score-tooltip">(relative to this candidate batch)</span></p>
+                </div>
+            </div>
+            
+            <div class="modal-body">
+                <div class="info-grid">
+                    <div class="info-item">
+                        <span class="info-label">Email</span>
+                        <span class="info-value" id="modal-email">-</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Phone</span>
+                        <span class="info-value" id="modal-phone">-</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">LinkedIn</span>
+                        <span class="info-value"><a href="#" id="modal-linkedin" target="_blank">-</a></span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">GitHub</span>
+                        <span class="info-value"><a href="#" id="modal-github" target="_blank">-</a></span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Experience</span>
+                        <span class="info-value" id="modal-experience">-</span>
+                    </div>
+                </div>
+
+                <div class="score-breakdown">
+                    <h3>Score Breakdown</h3>
+                    <div class="progress-bar-container">
+                        <div class="progress-label"><span>Semantic Match</span> <span id="modal-semantic-val">0</span></div>
+                        <div class="progress-track"><div class="progress-fill" id="modal-semantic-fill"></div></div>
+                    </div>
+                    <div class="progress-bar-container">
+                        <div class="progress-label"><span>Experience Match</span> <span id="modal-experience-val">0</span></div>
+                        <div class="progress-track"><div class="progress-fill emerald" id="modal-experience-fill"></div></div>
+                    </div>
+                </div>
+
+                <div class="reasoning-section">
+                    <h3>Reason</h3>
+                    <p id="modal-reason">-</p>
+                </div>
+
+                <div class="evidence-section" id="modal-evidence-container">
+                    <h3>Supporting Evidence</h3>
+                    <ul class="evidence-list" id="modal-evidence-list">
+                        <!-- Evidence injected via JS -->
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/app.js"></script>
+</body>
+</html>
